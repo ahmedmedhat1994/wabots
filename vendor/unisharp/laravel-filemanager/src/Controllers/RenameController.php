@@ -16,7 +16,9 @@ class RenameController extends LfmController
     {
         $old_name = $this->helper->input('file');
         $new_name = $this->helper->input('new_name');
-
+        
+        // not allowed rename file
+        
         $file = $this->lfm->setName($old_name);
 
         if (!Storage::disk($this->helper->config('disk'))->exists($file->path('storage'))) {

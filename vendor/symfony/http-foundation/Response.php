@@ -72,7 +72,7 @@ class Response
     public const HTTP_PRECONDITION_REQUIRED = 428;                                       // RFC6585
     public const HTTP_TOO_MANY_REQUESTS = 429;                                           // RFC6585
     public const HTTP_REQUEST_HEADER_FIELDS_TOO_LARGE = 431;                             // RFC6585
-    public const HTTP_UNAVAILABLE_FOR_LEGAL_REASONS = 451;                               // RFC7725
+    public const HTTP_UNAVAILABLE_FOR_LEGAL_REASONS = 451;
     public const HTTP_INTERNAL_SERVER_ERROR = 500;
     public const HTTP_NOT_IMPLEMENTED = 501;
     public const HTTP_BAD_GATEWAY = 502;
@@ -399,7 +399,6 @@ class Response
             litespeed_finish_request();
         } elseif (!\in_array(\PHP_SAPI, ['cli', 'phpdbg'], true)) {
             static::closeOutputBuffers(0, true);
-            flush();
         }
 
         return $this;
@@ -774,10 +773,8 @@ class Response
             return (int) $this->headers->getCacheControlDirective('max-age');
         }
 
-        if (null !== $expires = $this->getExpires()) {
-            $maxAge = (int) $expires->format('U') - (int) $this->getDate()->format('U');
-
-            return max($maxAge, 0);
+        if (null !== $this->getExpires()) {
+            return (int) $this->getExpires()->format('U') - (int) $this->getDate()->format('U');
         }
 
         return null;
@@ -821,7 +818,7 @@ class Response
      *
      * It returns null when no freshness information is present in the response.
      *
-     * When the response's TTL is 0, the response may not be served from cache without first
+     * When the responses TTL is <= 0, the response may not be served from cache without first
      * revalidating with the origin.
      *
      * @final
@@ -830,7 +827,7 @@ class Response
     {
         $maxAge = $this->getMaxAge();
 
-        return null !== $maxAge ? max($maxAge - $this->getAge(), 0) : null;
+        return null !== $maxAge ? $maxAge - $this->getAge() : null;
     }
 
     /**

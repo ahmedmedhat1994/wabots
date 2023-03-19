@@ -51,9 +51,7 @@ class Lfm
 
     public function utf8Pathinfo($path, $part_name)
     {
-        // XXX: all locale work-around for issue: utf8 file name got emptified
-        // if there's no '/', we're probably dealing with just a filename
-        // so just put an 'a' in front of it
+        
         if (strpos($path, '/') === false) {
             $path_parts = pathinfo('a' . $path);
         } else {
